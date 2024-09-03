@@ -8,12 +8,12 @@ import (
 	"time"
 )
 
-var forks = [10]chan int{make(chan int), make(chan int), make(chan int), make(chan int), make(chan int), make(chan int), make(chan int), make(chan int), make(chan int), make(chan int)}
+var channels = [10]chan int{make(chan int), make(chan int), make(chan int), make(chan int), make(chan int), make(chan int), make(chan int), make(chan int), make(chan int), make(chan int)}
 
 var wg sync.WaitGroup
 
 func main() {
-
+	// we use wait groups to terminate the program once everyone has eaten 3
 	wg.Add(5)
 	for i := 0; i < 5; i++ {
 		go fork(i)
@@ -25,19 +25,19 @@ func main() {
 
 }
 
-func fork(id int) {
-	var forkLeft = forks[((2*id)+1)%10]  //The left channel used to communicate with the left filoman
-	var forkRight = forks[((2*id)+2)%10] //The right channel used to communicate with the right filo
+func fork(id int) { //
+	var channelLeft = channels[((2*id)+1)%10]  //The left channel used to communicate with left filoman
+	var channelRight = channels[((2*id)+2)%10] //The right channel used to communicate with left filoman
 	for {
-		messageLeft := <-forkLeft
-		messageRight := <-forkRight
+		messageLeft := <-channelLeft
+		messageRight := <-channelRight
 
 		if messageLeft > messageRight {
-			forkLeft <- 1
-			forkRight <- 0
+			channelLeft <- 1
+			channelRight <- 0
 		} else {
-			forkLeft <- 0
-			forkRight <- 1
+			channelLeft <- 0
+			channelRight <- 1
 		}
 		time.Sleep(200)
 	}
@@ -46,27 +46,23 @@ func fork(id int) {
 
 func filoMan(id int) {
 	var stomach int
-	var forkLeft = forks[((2 * id) + 1)] //The left channel used to communicate with the left fork
-	var forkRight = forks[2*id]          //The right channel used to communicate with the right fork
+	var channelLeft = channels[((2 * id) + 1)] //The left channel used to communicate with the left fork
+	var channelRight = channels[2*id]          //The right channel used to communicate with the right fork
 
 	var priority int
 
-	for { // while hungry
-		if stomach < 3 {
-			priority = rand.Intn(math.MaxInt)
-		} else {
-			priority = 0
-		}
+	for {
+		priority = rand.Intn(math.MaxInt) // generates a random number to be used in the fork lotteries
 
-		// try to eat
-		forkLeft <- priority
-		forkRight <- priority
+		// try to grab both forks
+		channelLeft <- priority
+		channelRight <- priority
 
-		time.Sleep(100)
-		answerLeft := <-forkLeft
-		answerRight := <-forkRight
+		time.Sleep(100) // wait for answers to arrive
+		answerLeft := <-channelLeft
+		answerRight := <-channelRight
 
-		if answerLeft == 1 && answerRight == 1 {
+		if answerLeft == 1 && answerRight == 1 { //if both forks are available, eat
 			stomach++
 			fmt.Printf("Filoman %d grasps both forks forcefully\n", id)
 			fmt.Printf("Filoman %d ate. Stomach at %d/3\n", id, stomach)
