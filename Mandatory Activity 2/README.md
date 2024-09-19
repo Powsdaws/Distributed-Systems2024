@@ -1,0 +1,14 @@
+a. What are packages in your implementation? What data structure do you use to transmit data and meta-data?
+We use channels to send int arrays containing a seq and an ack number. These arrays could easily be made larger to also carry data.
+
+b. Does your implementation use threads or processes? Why is it not realistic to use threads?
+
+
+c. In case the network changes the order in which messages are delivered, how would you handle message re-ordering?
+
+
+d. In case messages can be delayed or lost, how does your implementation handle message loss?
+
+
+e. Why is the 3-way handshake important?
+
