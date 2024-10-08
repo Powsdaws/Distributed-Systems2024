@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option go_package = "Chitty-Chat/grpc/proto";
+
+
+//The type of data we send to and from the server
+message Chat_message {
+    string text = 1;
+    int32 LamportTime = 2;
+};
+
+
+//The service for publishing
+//rpc endpoints er client til server
+service ChatService {
+    rpc Connect (stream Chat_message) returns (stream Chat_message) {}; 
+};
+
+
+
