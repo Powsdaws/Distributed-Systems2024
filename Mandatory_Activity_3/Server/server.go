@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 	"strconv"
@@ -35,10 +36,13 @@ func (s *ChatServiceServer) Subscribe(timestamp *proto.Timestamp, stream proto.C
 	s.subcount = s.subcount + 1
 	clientID := s.subcount // print this number when the client joins and when they leave
 
+	fmt.Println("A client has joined")
+
 	joinMessage := &proto.ChatMessage{
-		Text:        ("Client " + strconv.Itoa(int(clientID)) + " has subscribed"),
+		Text:        "Client " + strconv.Itoa(int(clientID)) + " has subscribed",
 		LamportTime: s.lamportTime,
 	}
+	fmt.Println("text: ", joinMessage.Text)
 	s.Broadcast(joinMessage)
 
 	<-stream.Context().Done()
@@ -62,6 +66,7 @@ func (s *ChatServiceServer) Broadcast(message *proto.ChatMessage) {
 
 func (s *ChatServiceServer) syncTime(recvTime uint32) {
 	s.lamportTime = max(s.lamportTime, recvTime) + 1
+	fmt.Println("Server lambort: ", s.lamportTime)
 }
 
 func main() {
@@ -78,6 +83,7 @@ func (s *ChatServiceServer) start_server() {
 
 	proto.RegisterChatServiceServer(grpcServer, s)
 
+	fmt.Println("Server started")
 	err = grpcServer.Serve(listener)
 
 	if err != nil {
