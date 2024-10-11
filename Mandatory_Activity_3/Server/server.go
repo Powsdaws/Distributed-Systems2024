@@ -22,6 +22,8 @@ type ChatServiceServer struct {
 }
 
 func (s *ChatServiceServer) Publish(ctx context.Context, msg *proto.ChatMessage) (*proto.Empty, error) {
+	s.lamportTime += 1
+	fmt.Println("Server received message: ", msg.Text)
 	s.Broadcast(msg)
 
 	return &proto.Empty{}, nil
