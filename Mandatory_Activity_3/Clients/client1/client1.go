@@ -28,6 +28,10 @@ func main() {
 		log.Fatalf("Connection not established")
 	}
 
+	//Thread for writing messages in the cli
+	//go sendMessages(&connection)
+
+	//This recieves messages and listens
 	for {
 		var recMessage, err = connection.Recv()
 
@@ -37,6 +41,7 @@ func main() {
 
 		if recMessage != nil {
 			fmt.Println("client1 received: ", recMessage.Text)
+			fmt.Println("client1 received time: ", recMessage.LamportTime)
 			if recMessage.LamportTime > lambortTime.LamportTime {
 				lambortTime.LamportTime = recMessage.LamportTime + 1
 			} else {

@@ -59,7 +59,7 @@ func (s *ChatServiceServer) Subscribe(timestamp *proto.Timestamp, stream proto.C
 
 func (s *ChatServiceServer) Broadcast(message *proto.ChatMessage) {
 	for _, sub := range s.subscriptions {
-		sub.Send(&proto.ChatMessage{})
+		sub.Send(message)
 	}
 
 }
