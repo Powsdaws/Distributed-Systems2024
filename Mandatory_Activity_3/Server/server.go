@@ -39,7 +39,7 @@ func (s *ChatServiceServer) Subscribe(timestamp *proto.Timestamp, stream proto.C
 	s.lock.Lock()
 	s.subscriptions = append(s.subscriptions, stream)
 
-	log.Println("Server recieved subscribe request with time: " + strconv.Itoa(int(timestamp.LamportTime)))
+	log.Println("Server recieved subscribe request with time: " + strconv.Itoa(int(s.lamportTime)))
 	s.syncTime(timestamp.LamportTime) // ensure the clock is synced
 	s.subcount = s.subcount + 1
 	clientID := s.subcount // print this number when the client joins and when they leave
