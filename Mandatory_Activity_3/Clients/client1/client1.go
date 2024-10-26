@@ -43,7 +43,7 @@ func main() {
 		var recMessage, err = connection.Recv()
 
 		if err != nil {
-			log.Fatalf("recv wrong")
+			log.Fatalf("Server closed unexpectedly")
 		}
 
 		if recMessage != nil {
