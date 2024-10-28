@@ -4,10 +4,8 @@ import (
 	proto "Chitty-Chat/grpc"
 	"bufio"
 	"context"
-	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"sync"
 
 	"google.golang.org/grpc"
@@ -29,7 +27,7 @@ func main() {
 	// Subscribe to messages from Server
 	lamportLock.Lock()
 	lamportTime += 1
-	fmt.Println("client sent subscribe request with time: " + strconv.Itoa(int(lamportTime)))
+	//log.Println("participant sent subscribe request with time: " + strconv.Itoa(int(lamportTime)))
 	connection, err := client.Subscribe(context.Background(), &proto.Timestamp{LamportTime: lamportTime})
 	lamportLock.Unlock()
 	if err != nil {
@@ -45,11 +43,11 @@ func main() {
 		var recMessage, err = connection.Recv()
 
 		if err != nil {
-			log.Fatalf("recv wrong")
+			log.Fatalf("Server closed unexpectedly")
 		}
 
 		if recMessage != nil {
-			fmt.Println("client received broadcast: ", recMessage.Text, " -- msgtime: ", recMessage.LamportTime)
+			log.Println(recMessage.Text)
 
 			syncTime(recMessage.LamportTime)
 
@@ -62,7 +60,7 @@ func main() {
 func syncTime(recvTime uint32) {
 	lamportLock.Lock()
 	lamportTime = max(lamportTime, recvTime) + 1
-	fmt.Println("Client time: ", lamportTime)
+	//log.Println("Client time: ", lamportTime)
 	lamportLock.Unlock()
 }
 
@@ -74,11 +72,11 @@ func sendMessages(client proto.ChatServiceClient) {
 		newMessage, err := reader.ReadString('\n')
 
 		if err != nil {
-			fmt.Println("Unsubscribed") //we only get this when we unsubscribe
+			log.Println("Unsubscribed") //we only get this when we unsubscribe
 			continue
 		}
 		if len(newMessage) > 128 {
-			fmt.Println("Message too long :(")
+			log.Println("Message too long :(")
 			continue
 		}
 
@@ -91,7 +89,7 @@ func sendMessages(client proto.ChatServiceClient) {
 			LamportTime: lamportTime,
 		}
 
-		fmt.Println("client sent message: \"", newMessage, "\" with time ", lamportTime)
+		//log.Println("client sent message: \"", newMessage, "\" with time ", lamportTime)
 
 		client.Publish(context.Background(), newMessageChat)
 		lamportLock.Unlock()

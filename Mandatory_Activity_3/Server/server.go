@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net"
 	"strconv"
@@ -24,7 +23,7 @@ type ChatServiceServer struct {
 
 func (s *ChatServiceServer) Publish(ctx context.Context, msg *proto.ChatMessage) (*proto.Empty, error) {
 	s.lock.Lock()
-	fmt.Println("Server received message: ", msg.Text, "with time: "+strconv.Itoa(int(msg.LamportTime)))
+	log.Println("Server received message: " + msg.Text + " with time: " + strconv.Itoa(int(msg.LamportTime)))
 	s.syncTime(msg.LamportTime)
 
 	s.lamportTime += 1 //increment time before sending message
@@ -40,15 +39,17 @@ func (s *ChatServiceServer) Subscribe(timestamp *proto.Timestamp, stream proto.C
 	s.lock.Lock()
 	s.subscriptions = append(s.subscriptions, stream)
 
-	fmt.Println("Server recieved subscribe request with time: " + strconv.Itoa(int(timestamp.LamportTime)))
+	log.Println("Server recieved subscribe request with time: " + strconv.Itoa(int(s.lamportTime)))
 	s.syncTime(timestamp.LamportTime) // ensure the clock is synced
 	s.subcount = s.subcount + 1
 	clientID := s.subcount // print this number when the client joins and when they leave
+	text := "Participant " + strconv.Itoa(int(clientID)) + " joined Chitty-Chat at Lamport Time " + strconv.Itoa(int(s.lamportTime))
+	log.Println(text)
 
 	s.lamportTime += 1 // increment time cause we are about to send a message
 
 	joinMessage := &proto.ChatMessage{
-		Text:        "Client " + strconv.Itoa(int(clientID)) + " has subscribed.",
+		Text:        text,
 		LamportTime: s.lamportTime,
 	}
 
@@ -63,18 +64,19 @@ func (s *ChatServiceServer) Subscribe(timestamp *proto.Timestamp, stream proto.C
 	s.lamportTime++
 
 	unsubscribeMessage := &proto.ChatMessage{
-		Text:        ("Client " + strconv.Itoa(int(clientID)) + " has unsubcribed at time: " + strconv.Itoa(int(s.lamportTime))),
+		Text:        ("Participant " + strconv.Itoa(int(clientID)) + " left Chitty-Chat at Lamport Time " + strconv.Itoa(int(s.lamportTime))),
 		LamportTime: s.lamportTime,
 	}
-
+	log.Println("Server recieved unsubscribe request with time: " + strconv.Itoa(int(s.lamportTime)))
 	s.Broadcast(unsubscribeMessage)
+
 	s.lock.Unlock()
 
 	return nil
 }
 
 func (s *ChatServiceServer) Broadcast(message *proto.ChatMessage) {
-	fmt.Println("Broadcasting: ", message.Text, " -- Time: "+strconv.Itoa(int(s.lamportTime)))
+	//log.Println("Broadcasting: ", message.Text,)
 	for _, sub := range s.subscriptions {
 		sub.Send(message)
 	}
@@ -82,7 +84,7 @@ func (s *ChatServiceServer) Broadcast(message *proto.ChatMessage) {
 
 func (s *ChatServiceServer) syncTime(recvTime uint32) {
 	s.lamportTime = (max(s.lamportTime, recvTime)) + 1
-	fmt.Println("Server lamport synced to: ", s.lamportTime)
+	//log.Println("Server lamport synced to: ", s.lamportTime)
 }
 
 func main() {
@@ -99,7 +101,7 @@ func (s *ChatServiceServer) start_server() {
 
 	proto.RegisterChatServiceServer(grpcServer, s)
 
-	fmt.Println("Server started")
+	log.Println("Server started")
 	err = grpcServer.Serve(listener)
 
 	if err != nil {
