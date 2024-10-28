@@ -23,7 +23,7 @@ type ChatServiceServer struct {
 
 func (s *ChatServiceServer) Publish(ctx context.Context, msg *proto.ChatMessage) (*proto.Empty, error) {
 	s.lock.Lock()
-	log.Println(msg.Text)
+	log.Println("L" + strconv.Itoa(int(s.lamportTime)) + " " + msg.Text)
 	s.syncTime(msg.LamportTime)
 
 	s.lamportTime += 1 //increment time before sending message
@@ -42,8 +42,8 @@ func (s *ChatServiceServer) Subscribe(timestamp *proto.Timestamp, stream proto.C
 	s.syncTime(timestamp.LamportTime) // ensure the clock is synced
 	s.subcount = s.subcount + 1
 	clientID := s.subcount // print this number when the client joins and when they leave
-	text := "Participant " + strconv.Itoa(int(clientID)) + " joined Chitty-Chat at Lamport Time " + strconv.Itoa(int(s.lamportTime))
-	log.Println(text)
+	text := "Client " + strconv.Itoa(int(clientID)) + " joined Chitty-Chat"
+	log.Println("L" + strconv.Itoa(int(s.lamportTime)) + " " + text)
 
 	stream.Send(&proto.ChatMessage{
 		Text:        strconv.Itoa(int(clientID)),
@@ -67,12 +67,13 @@ func (s *ChatServiceServer) Subscribe(timestamp *proto.Timestamp, stream proto.C
 	s.lock.Lock()
 	s.lamportTime++
 
-	unsubscribeText := "Participant " + strconv.Itoa(int(clientID)) + " left Chitty-Chat at Lamport Time " + strconv.Itoa(int(s.lamportTime))
+	unsubscribeText := "Client " + strconv.Itoa(int(clientID)) + " left Chitty-Chat"
+	log.Println("L" + strconv.Itoa(int(s.lamportTime)) + " " + unsubscribeText)
+	s.lamportTime++
 	unsubscribeMessage := &proto.ChatMessage{
 		Text:        unsubscribeText,
 		LamportTime: s.lamportTime,
 	}
-	log.Println(unsubscribeText)
 	s.Broadcast(unsubscribeMessage)
 
 	s.lock.Unlock()

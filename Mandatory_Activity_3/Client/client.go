@@ -56,10 +56,8 @@ func main() {
 		}
 
 		if recMessage != nil {
-			log.Println(recMessage.Text)
-
 			syncTime(recMessage.LamportTime)
-
+			log.Println("L" + strconv.Itoa(int(lamportTime)) + " " + recMessage.Text)
 		}
 
 	}
