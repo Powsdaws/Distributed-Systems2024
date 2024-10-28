@@ -46,6 +46,11 @@ func (s *ChatServiceServer) Subscribe(timestamp *proto.Timestamp, stream proto.C
 	text := "Participant " + strconv.Itoa(int(clientID)) + " joined Chitty-Chat at Lamport Time " + strconv.Itoa(int(s.lamportTime))
 	log.Println(text)
 
+	stream.Send(&proto.ChatMessage{
+		Text:        strconv.Itoa(int(clientID)),
+		LamportTime: s.lamportTime,
+	})
+
 	s.lamportTime += 1 // increment time cause we are about to send a message
 
 	joinMessage := &proto.ChatMessage{
