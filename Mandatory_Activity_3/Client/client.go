@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 
 	"google.golang.org/grpc"
@@ -87,6 +88,7 @@ func sendMessages(client proto.ChatServiceClient) {
 			log.Println("Message too long :(")
 			continue
 		}
+		newMessage = strings.TrimSuffix(newMessage, "\n")
 
 		//We lock lamport field
 		lamportLock.Lock()
