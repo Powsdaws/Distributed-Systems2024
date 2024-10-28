@@ -1,5 +1,0 @@
-We have chosen to use bi-directional streaming as it allows us to easily send requests to the server, and for the server to maintain a
-channel of communication to all clients.
-
-We have chosen to send data in the form of a Chat_message both to and from the server. 
-The idea being that the server will receive the chatmessage, increment the time, and resend it to all clients.
