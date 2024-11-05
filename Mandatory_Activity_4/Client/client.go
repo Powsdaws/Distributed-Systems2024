@@ -50,7 +50,6 @@ func main() {
 	log.Println("Declare a recieving address")
 	var recieverAddress string
 	fmt.Scanln(&recieverAddress)
-	log.Println("Receiver: " + recieverAddress)
 
 	recieverAddressString := strings.Trim("localhost:"+recieverAddress, "\n")
 	conn, err := grpc.NewClient(recieverAddressString, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -66,8 +65,6 @@ func main() {
 		hasToken = true
 		log.Println("This client has started with the token")
 	}
-
-	log.Println(hostAddressString)
 
 	for {
 		if hasToken {
