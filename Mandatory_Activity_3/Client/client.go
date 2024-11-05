@@ -6,6 +6,8 @@ import (
 	"context"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 	"sync"
 
 	"google.golang.org/grpc"
@@ -14,6 +16,7 @@ import (
 
 var lamportLock sync.Mutex
 var lamportTime uint32
+var clientId int
 
 func main() {
 	conn, err := grpc.NewClient("localhost:5050", grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -34,6 +37,12 @@ func main() {
 		log.Fatalf("Connection not established")
 	}
 
+	clientIdMsg, err := connection.Recv()
+	if err != nil {
+		log.Fatalf("Client ID never received")
+	}
+	clientId, err = strconv.Atoi(clientIdMsg.Text)
+
 	//Thread for writing messages in the cli
 	go sendMessages(client)
 
@@ -47,10 +56,8 @@ func main() {
 		}
 
 		if recMessage != nil {
-			log.Println(recMessage.Text)
-
 			syncTime(recMessage.LamportTime)
-
+			log.Println("L" + strconv.Itoa(int(lamportTime)) + " " + recMessage.Text)
 		}
 
 	}
@@ -79,13 +86,14 @@ func sendMessages(client proto.ChatServiceClient) {
 			log.Println("Message too long :(")
 			continue
 		}
+		newMessage = strings.TrimSuffix(newMessage, "\n")
 
 		//We lock lamport field
 		lamportLock.Lock()
 		lamportTime = lamportTime + 1
 
 		newMessageChat := &proto.ChatMessage{
-			Text:        newMessage,
+			Text:        "Client " + strconv.Itoa(clientId) + ": " + newMessage,
 			LamportTime: lamportTime,
 		}
 
