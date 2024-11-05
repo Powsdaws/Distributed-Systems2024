@@ -108,6 +108,7 @@ func (s *ChatServiceServer) start_server() {
 	proto.RegisterChatServiceServer(grpcServer, s)
 
 	log.Println("Server started")
+
 	err = grpcServer.Serve(listener)
 
 	if err != nil {

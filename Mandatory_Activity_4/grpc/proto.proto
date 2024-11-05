@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option go_package = "TokenRing/grpc/proto";
+
+
+//The token that is being sent around
+message Token {};
+
+message Empty{};
+
+//Endpoint for sending token
+service TokenService {
+    rpc SendToken (Token) returns (Empty) {}; 
+};
