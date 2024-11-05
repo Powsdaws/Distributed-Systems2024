@@ -13,7 +13,7 @@
 2. For each node you will be prompted to give an ip for that node, and an ip for the next node in the ring.
 3. The program starts running once you create a node with the ip "5052", so this should be the last action performed. This node should be connected to the first node in the ring.
 
-Example of setup with 3 nodes, in the correct order:
-Node 1: ip: "5050", recieving ip: "5051"
-Node 2: ip: "5051", recieving ip: "5052"
-Node 3: ip: "5052", recieving ip: "5050"
+Example of setup with 3 nodes, in the correct order: 
+1. Node 1: host ip: "5050", recieving ip: "5051"
+2. Node 2: host ip: "5051", recieving ip: "5052"
+3. Node 3: host ip: "5052", recieving ip: "5050"
