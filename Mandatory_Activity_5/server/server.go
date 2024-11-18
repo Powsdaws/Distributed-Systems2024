@@ -26,13 +26,15 @@ func (s *AuctionServiceServer) Bid(ctx context.Context, bid *proto.Bid) (*proto.
 		s.startAuction()
 	}
 
+	var errorMessage error
+
 	//We check if auction is over
 	currentTime := time.Now()
 	if !currentTime.Before(s.EndAt) {
 		ack := &proto.Ack{
 			Acknowledgement: false,
 		}
-		errorMessage := errors.New("Bid failed: Auction is over")
+		errorMessage = errors.New("Bid failed: Auction is over")
 		return ack, errorMessage
 	}
 
@@ -40,6 +42,12 @@ func (s *AuctionServiceServer) Bid(ctx context.Context, bid *proto.Bid) (*proto.
 	if bid.Amount > s.HighestBid {
 		s.HighestBid = bid.Amount
 		s.HighestBidder = bid.ClientId
+	} else {
+		errorMessage = errors.New("Bid failed: Bid not high enough")
+		ack := &proto.Ack{
+			Acknowledgement: false,
+		}
+		return ack, errorMessage
 	}
 
 	ack := &proto.Ack{

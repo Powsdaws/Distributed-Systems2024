@@ -56,14 +56,23 @@ func sendBid(amount uint32) {
 		Amount:   amount,
 	}
 
+	var responses := []proto.Ack
+
 	//We make a bid to every node in the server
 	for _, conn := range connections {
-
 		ack, err := conn.Bid(context.Background(), &bid)
 		if err != nil {
 			log.Fatal(err)
 		}
+		responses = append(responses, *ack)
+	}
 
+	var agreedResponse = getMostOccurring(responses)
+
+	if agreedResponse.Acknowledgement {
+		log.Println("Bid successful!    Amount: ", amount)
+	} else {
+		log.Println("Bid failed!    Current highest bid: " + strconv.Itoa(int(agreedResponse.HighestBid)))
 	}
 }
 
@@ -74,18 +83,19 @@ func sendResult() {
 	for _, conn := range connections {
 		result, _ := conn.Result(context.Background(), &proto.Empty{})
 		results = append(results, *result)
-
-		b, _ := json.Marshal(result)
-
 	}
 
-	for _, result := range results {
+	var agreedResult = getMostOccurring(results)
 
+	if agreedResult.WinnerId != 0 {
+		log.Println("Winner: ", agreedResult.WinnerId, "!    Amount: ", agreedResult.HighestBid)
+	} else {
+		log.Println("No winner!    Current highest bid: " + strconv.Itoa(int(agreedResult.HighestBid)))
 	}
 }
 
-func getMostOccurring(elements []any) any {
-	var hashes = make(map[string](proto.Outcome))
+func getMostOccurring[T any](elements []T) T {
+	var hashes = make(map[string](T))
 	var occurences = make(map[string](int))
 
 	for _, element := range elements {
