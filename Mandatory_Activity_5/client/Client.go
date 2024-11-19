@@ -150,8 +150,6 @@ func CLI() {
 			if err != nil {
 				panic(err)
 			}
-			log.Println("amount", amount)
-			log.Println("Bid: ", splitInput[1])
 			sendBid(uint32(amount))
 		} else if splitInput[0] == "Result" {
 			sendResult()
