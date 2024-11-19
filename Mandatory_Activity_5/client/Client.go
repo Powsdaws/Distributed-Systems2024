@@ -24,6 +24,7 @@ func main() {
 	fmt.Scanln(&id)
 
 	ConnectServers()
+	CLI()
 
 }
 
@@ -51,12 +52,13 @@ func ConnectServers() {
 }
 
 func sendBid(amount uint32) {
+	log.Println(amount)
 	bid := proto.Bid{
 		ClientId: id,
 		Amount:   amount,
 	}
 
-	var responses := []proto.Ack
+	var responses []proto.Ack
 
 	//We make a bid to every node in the server
 	for _, conn := range connections {
@@ -72,7 +74,7 @@ func sendBid(amount uint32) {
 	if agreedResponse.Acknowledgement {
 		log.Println("Bid successful!    Amount: ", amount)
 	} else {
-		log.Println("Bid failed!    Current highest bid: " + strconv.Itoa(int(agreedResponse.HighestBid)))
+		log.Println("Bid failed!")
 	}
 }
 

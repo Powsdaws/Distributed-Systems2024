@@ -78,6 +78,7 @@ func main() {
 	// start an auction
 	server := AuctionServiceServer{}
 	server.startServer(port)
+
 }
 
 func (s *AuctionServiceServer) startServer(port string) {
@@ -99,5 +100,5 @@ func (s *AuctionServiceServer) startServer(port string) {
 }
 
 func (s *AuctionServiceServer) startAuction() {
-	s.EndAt = time.Now().Add(time.Second * 100)
+	s.EndAt = time.Now().Add(time.Second * 10000)
 }
