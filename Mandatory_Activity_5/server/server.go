@@ -30,7 +30,7 @@ func (s *AuctionServiceServer) Bid(ctx context.Context, bid *proto.Bid) (*proto.
 
 	//We check if auction is over
 	currentTime := time.Now()
-	if !currentTime.Before(s.EndAt) {
+	if currentTime.After(s.EndAt) {
 		ack := &proto.Ack{
 			Acknowledgement: false,
 		}
@@ -100,5 +100,5 @@ func (s *AuctionServiceServer) startServer(port string) {
 }
 
 func (s *AuctionServiceServer) startAuction() {
-	s.EndAt = time.Now().Add(time.Second * 10000)
+	s.EndAt = time.Now().Add(time.Second * 30)
 }

@@ -58,15 +58,22 @@ func sendBid(amount uint32) {
 		Amount:   amount,
 	}
 
-	var responses []proto.Ack
+	var responses []*proto.Ack
+	var errors []error
 
 	//We make a bid to every node in the server
 	for _, conn := range connections {
 		ack, err := conn.Bid(context.Background(), &bid)
 		if err != nil {
-			log.Fatal(err)
+			errors = append(errors, err)
 		}
-		responses = append(responses, *ack)
+		responses = append(responses, ack)
+	}
+
+	if len(errors) != 0 {
+		var agreedError = getMostOccurring(errors)
+		log.Println(agreedError.Error())
+		return
 	}
 
 	var agreedResponse = getMostOccurring(responses)
@@ -80,11 +87,11 @@ func sendBid(amount uint32) {
 
 func sendResult() {
 
-	var results []proto.Outcome
+	var results []*proto.Outcome
 
 	for _, conn := range connections {
 		result, _ := conn.Result(context.Background(), &proto.Empty{})
-		results = append(results, *result)
+		results = append(results, result)
 	}
 
 	var agreedResult = getMostOccurring(results)
@@ -130,11 +137,21 @@ func CLI() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		input = strings.TrimSuffix(input, "\n")
+		input = strings.TrimSuffix(input, "\r") //FOOOD >TIME>>>>>>>
 
 		splitInput := strings.Split(input, " ")
 
 		if splitInput[0] == "Bid" {
-			amount, _ := strconv.Atoi(splitInput[1])
+
+			var amount uint64
+
+			amount, err = strconv.ParseUint(splitInput[1], 10, 32)
+			if err != nil {
+				panic(err)
+			}
+			log.Println("amount", amount)
+			log.Println("Bid: ", splitInput[1])
 			sendBid(uint32(amount))
 		} else if splitInput[0] == "Result" {
 			sendResult()
