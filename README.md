@@ -30,6 +30,7 @@ The source code for Mandatory Activity 3 is located in ```/Mandatory_Activity_3/
 4. Then enter an id for each client.
 5. Enter 'Bid' to bid on the auction
 6. Enter 'Result' to see the status or result of the auction
+
 The auction will end after 30 seconds.
 
 # Source code
