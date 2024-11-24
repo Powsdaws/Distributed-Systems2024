@@ -52,7 +52,6 @@ func ConnectServers() {
 }
 
 func sendBid(amount uint32) {
-	log.Println(amount)
 	bid := proto.Bid{
 		ClientId: id,
 		Amount:   amount,
