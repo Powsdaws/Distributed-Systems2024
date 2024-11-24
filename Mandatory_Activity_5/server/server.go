@@ -93,7 +93,7 @@ func (s *AuctionServiceServer) startServer(port string) {
 
 	proto.RegisterAuctionServiceServer(grpcServer, s)
 
-	log.Println("A auction server/node has startd")
+	log.Println("A auction server/node has started")
 
 	err = grpcServer.Serve(listener)
 
