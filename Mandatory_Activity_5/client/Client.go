@@ -128,6 +128,17 @@ func getMostOccurring[T any](elements []T) T {
 	return hashes[mostOccuringHash]
 }
 
+func filterErrorMessage(msg string) string {
+	// Find the last occurrence of '='
+	pos := strings.LastIndex(msg, "=")
+	if pos == -1 {
+		// '=' not found, return the original message
+		return msg
+	}
+	// Return the substring after the last '='
+	return strings.TrimSpace(msg[pos+1:])
+}
+
 func CLI() {
 
 	reader := bufio.NewReader(os.Stdin)
