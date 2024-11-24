@@ -142,7 +142,7 @@ func CLI() {
 
 		splitInput := strings.Split(input, " ")
 
-		if splitInput[0] == "Bid" {
+		if strings.EqualFold(splitInput[0], "Bid") {
 
 			var amount uint64
 
@@ -151,7 +151,7 @@ func CLI() {
 				panic(err)
 			}
 			sendBid(uint32(amount))
-		} else if splitInput[0] == "Result" {
+		} else if strings.EqualFold(splitInput[0], "Result") {
 			sendResult()
 		} else {
 			log.Println("Invalid command")
