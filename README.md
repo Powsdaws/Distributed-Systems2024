@@ -21,3 +21,16 @@ Example of setup with 3 nodes, in the correct order:
 
 # Source code
 The source code for Mandatory Activity 3 is located in ```/Mandatory_Activity_3/```
+
+# Instructions handin 5
+1. Start three replica nodes (server nodess) by running the following command in seperate terminals:
+   ```go run ./Mandatory_Activity_5/server/server.go```
+2. For each replica enter ONE of the following ports: 5050, 5051, 5052
+3. Then start any number of clients by running ```go run ./Mandatory_Activity_5/client/Client.go```
+4. Then enter an id for each client.
+5. Enter 'Bid' to bid on the auction
+6. Enter 'Result' to see the status or result of the auction
+The auction will end after 30 seconds.
+
+# Source code
+The source code for Mandatory Activity 5 is located in ```/Mandatory_Activity_5/```
