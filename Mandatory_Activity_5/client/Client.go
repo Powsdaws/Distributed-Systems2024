@@ -59,20 +59,22 @@ func sendBid(amount uint32) {
 	}
 
 	var responses []*proto.Ack
-	var errors []error
+	var errors []string
 
 	//We make a bid to every node in the server
 	for _, conn := range connections {
 		ack, err := conn.Bid(context.Background(), &bid)
 		if err != nil {
-			errors = append(errors, err)
+			var errorMessage = filterErrorMessage(fmt.Sprint(err))
+			errors = append(errors, errorMessage)
 		}
 		responses = append(responses, ack)
 	}
 
-	if len(errors) != 0 {
+	// if a majority of the nodes return an error, we find the most common error and print it
+	if len(errors) > (len(connections) / 2) {
 		var agreedError = getMostOccurring(errors)
-		log.Println(agreedError.Error())
+		log.Println(agreedError)
 		return
 	}
 
