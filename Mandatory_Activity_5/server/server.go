@@ -62,7 +62,7 @@ func (s *AuctionServiceServer) Result(ctx context.Context, empty *proto.Empty) (
 		HighestBid: s.HighestBid,
 	}
 
-	// if auction is over, add the winner
+	// if auction is over, add the winner else add the current highest bid
 	outcome.WinnerId = s.HighestBidder
 
 	return outcome, nil

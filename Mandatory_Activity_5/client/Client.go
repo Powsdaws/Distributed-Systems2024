@@ -99,7 +99,7 @@ func sendResult() {
 	if agreedResult.WinnerId != 0 {
 		log.Println("Winner: ", agreedResult.WinnerId, "!    Amount: ", agreedResult.HighestBid)
 	} else {
-		log.Println("No winner!    Current highest bid: " + strconv.Itoa(int(agreedResult.HighestBid)))
+		log.Println("No winner yet!    Current highest bid: " + strconv.Itoa(int(agreedResult.HighestBid)))
 	}
 }
 
