@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"sync"
 	"time"
 
 	"google.golang.org/grpc"
@@ -17,6 +18,7 @@ type AuctionServiceServer struct {
 	EndAt         time.Time
 	HighestBid    uint32
 	HighestBidder uint32
+	lock          sync.Mutex
 }
 
 func (s *AuctionServiceServer) Bid(ctx context.Context, bid *proto.Bid) (*proto.Ack, error) {
@@ -38,10 +40,12 @@ func (s *AuctionServiceServer) Bid(ctx context.Context, bid *proto.Bid) (*proto.
 		return ack, errorMessage
 	}
 
+	s.lock.Lock()
 	//Check if bid is higher than the current highest bid
 	if bid.Amount > s.HighestBid {
 		s.HighestBid = bid.Amount
 		s.HighestBidder = bid.ClientId
+
 	} else {
 		errorMessage = errors.New("Bid failed: Bid not high enough")
 		ack := &proto.Ack{
@@ -49,6 +53,7 @@ func (s *AuctionServiceServer) Bid(ctx context.Context, bid *proto.Bid) (*proto.
 		}
 		return ack, errorMessage
 	}
+	s.lock.Unlock()
 
 	ack := &proto.Ack{
 		Acknowledgement: true,
@@ -58,13 +63,17 @@ func (s *AuctionServiceServer) Bid(ctx context.Context, bid *proto.Bid) (*proto.
 }
 
 func (s *AuctionServiceServer) Result(ctx context.Context, empty *proto.Empty) (*proto.Outcome, error) {
+	s.lock.Lock()
 	outcome := &proto.Outcome{
 		HighestBid: s.HighestBid,
 	}
 
+	currentTime := time.Now()
 	// if auction is over, add the winner
-	outcome.WinnerId = s.HighestBidder
-
+	if currentTime.After(s.EndAt) {
+		outcome.WinnerId = s.HighestBidder
+	}
+	s.lock.Unlock()
 	return outcome, nil
 }
 
@@ -90,7 +99,7 @@ func (s *AuctionServiceServer) startServer(port string) {
 
 	proto.RegisterAuctionServiceServer(grpcServer, s)
 
-	log.Println("A auction server/node has startd")
+	log.Println("A auction server/node has started")
 
 	err = grpcServer.Serve(listener)
 

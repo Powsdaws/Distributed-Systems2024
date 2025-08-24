@@ -52,27 +52,28 @@ func ConnectServers() {
 }
 
 func sendBid(amount uint32) {
-	log.Println(amount)
 	bid := proto.Bid{
 		ClientId: id,
 		Amount:   amount,
 	}
 
 	var responses []*proto.Ack
-	var errors []error
+	var errors []string
 
 	//We make a bid to every node in the server
 	for _, conn := range connections {
 		ack, err := conn.Bid(context.Background(), &bid)
 		if err != nil {
-			errors = append(errors, err)
+			var errorMessage = filterErrorMessage(fmt.Sprint(err))
+			errors = append(errors, errorMessage)
 		}
 		responses = append(responses, ack)
 	}
 
-	if len(errors) != 0 {
+	// if a majority of the nodes return an error, we find the most common error and print it
+	if len(errors) > (len(connections) / 2) {
 		var agreedError = getMostOccurring(errors)
-		log.Println(agreedError.Error())
+		log.Println(agreedError)
 		return
 	}
 
@@ -99,7 +100,7 @@ func sendResult() {
 	if agreedResult.WinnerId != 0 {
 		log.Println("Winner: ", agreedResult.WinnerId, "!    Amount: ", agreedResult.HighestBid)
 	} else {
-		log.Println("No winner!    Current highest bid: " + strconv.Itoa(int(agreedResult.HighestBid)))
+		log.Println("No winner yet!    Current highest bid: " + strconv.Itoa(int(agreedResult.HighestBid)))
 	}
 }
 
@@ -128,6 +129,17 @@ func getMostOccurring[T any](elements []T) T {
 	return hashes[mostOccuringHash]
 }
 
+func filterErrorMessage(msg string) string {
+	// Find the last occurrence of '='
+	pos := strings.LastIndex(msg, "=")
+	if pos == -1 {
+		// '=' not found, return the original message
+		return msg
+	}
+	// Return the substring after the last '='
+	return strings.TrimSpace(msg[pos+1:])
+}
+
 func CLI() {
 
 	reader := bufio.NewReader(os.Stdin)
@@ -142,7 +154,7 @@ func CLI() {
 
 		splitInput := strings.Split(input, " ")
 
-		if splitInput[0] == "Bid" {
+		if strings.EqualFold(splitInput[0], "Bid") {
 
 			var amount uint64
 
@@ -151,7 +163,7 @@ func CLI() {
 				panic(err)
 			}
 			sendBid(uint32(amount))
-		} else if splitInput[0] == "Result" {
+		} else if strings.EqualFold(splitInput[0], "Result") {
 			sendResult()
 		} else {
 			log.Println("Invalid command")
