@@ -27,7 +27,7 @@ func pingerA(ch1 chan string, ch2 chan string) {
 func pingerB(ch1 chan string, ch2 chan string) {
 	for {
 		read := <-ch1
-		println("A reviewed: ", read)
+		println("B reviewed: ", read)
 		time.Sleep(100 * time.Millisecond)
 		ch2 <- "pong"
 	}
