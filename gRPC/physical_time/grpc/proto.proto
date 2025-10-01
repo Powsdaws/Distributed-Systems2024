@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = "./";
+
+package timeservice;
+
+message TimeRequest {}
+
+message TimeResponse {
+  string current_time = 1;
+}
+
+service TimeService {
+  rpc GetTime (TimeRequest) returns (TimeResponse);
+}
